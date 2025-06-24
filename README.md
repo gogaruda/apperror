@@ -19,29 +19,11 @@ Modul `apperror` adalah utilitas standar untuk menangani error di aplikasi backe
 ```bash
 go get github.com/gogaruda/apperror
 ````
-
-> Gantilah `your-org/apperror` dengan path modul sebenarnya.
-
-Jika berada dalam satu monorepo:
-
-* Pastikan package `apperror` berada di folder module, misal: `internal/apperror`.
-
----
-
-## 📁 Struktur File
-
-```
-apperror/
-├── error_codes.go       # Daftar kode error
-├── init_error.go        # Struct InitError & fungsi helper
-├── http_handler.go      # Integrasi handler Gin + logger
-```
-
 ---
 
 ## 🚀 Cara Penggunaan
 
-### 1. Buat error di service repository layer
+### 1. Buat error di repository layer
 
 ```go
 return apperror.New(

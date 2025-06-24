@@ -37,7 +37,7 @@ var defaultErrorMap = []HTTPErrorMap{
 	{CodeAuthNotFound, http.StatusNotFound, "Username/email atau password salah"},
 }
 
-var debugMode = os.Getenv("GIN_MODE") == "debug"
+var debugMode = os.Getenv("APP_DEBUG") == "true"
 
 func HandleHTTError(c *gin.Context, err error) {
 	var initErr *InitError
