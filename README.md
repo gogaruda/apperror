@@ -17,7 +17,7 @@ Modul `apperror` adalah utilitas standar untuk menangani error di aplikasi backe
 ## 📦 Instalasi
 
 ```bash
-go get github.com/gogaruda/apperror
+go get github.com/gogaruda/apperror@v.1.0.2
 ````
 ---
 

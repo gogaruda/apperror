@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.0.2] - 2025-06-26
+### Perbaikan
+- Perbaiki typo HandleHTTPError
+
+### Penambahan
+- Tambah pesan error
+
 ## [v1.0.1] - 2025-06-24
 ### Perbaikan
 - Update module github.com/gogaruda/apperror
