@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.0.3] - (2025-06-27)
+### Perbaikan
+- Ganti semua response c.JSON ke c.Abort untuk menghentikan semua proses setelahnya
+
 ## [v1.0.2] - 2025-06-26
 ### Perbaikan
 - Perbaiki typo HandleHTTPError

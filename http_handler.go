@@ -83,7 +83,7 @@ func HandleHTTPError(c *gin.Context, err error) {
 		}
 
 		log.Printf("[UNMAPPED ERROR CODE] %s | MESSAGE: %s", initErr.Code, initErr.Message)
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
 			"message": "Terjadi kesalahan server",
 			"debug":   initErr.Message,
@@ -92,7 +92,7 @@ func HandleHTTPError(c *gin.Context, err error) {
 
 	// Unknown error (bukan initError)
 	log.Printf("[UNHANDLED ERROR]: %+v", err)
-	c.JSON(http.StatusInternalServerError, gin.H{
+	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 		"status":  "error",
 		"message": "Terjadi kesalahan server",
 		"debug":   err.Error(),
