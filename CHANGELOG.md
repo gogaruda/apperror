@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.2.0] - (2025-06-28)
+### Perbaikan
+- Tambahkan custom error
+
 ## [v1.0.3] - (2025-06-27)
 ### Perbaikan
 - Ganti semua response c.JSON ke c.Abort untuk menghentikan semua proses setelahnya

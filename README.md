@@ -1,93 +1,85 @@
 # apperror
 
-Modul `apperror` adalah utilitas standar untuk menangani error di aplikasi backend berbasis Go, khususnya dalam arsitektur web (REST API) menggunakan Gin. Modul ini menyediakan standar penanganan error internal, pelaporan ke client, dan logging.
-
----
-
-## 🔧 Fitur
-
-- Standardisasi kode error (terstruktur)
-- Support log internal dan pesan aman untuk client
-- Debug mode untuk development
-- Integrasi mudah dengan Gin
-- Dukungan error wrapping & unwrapping (`errors.As`, `apperror.Is`)
-
----
-
-## 📦 Instalasi
+## Instalasi
 
 ```bash
-go get github.com/gogaruda/apperror@v1.0.3
-````
+go get github.com/gogaruda/apperror@latest
+```
+
 ---
 
-## 🚀 Cara Penggunaan
+## Penggunaan
 
-### 1. Buat error di repository layer
+### Membuat Error Standar (dengan kode bawaan)
 
 ```go
-return apperror.New(
-    apperror.CodeDBError,
-    fmt.Sprintf("gagal query role_id %v", roleID),
-    err,
+import "github.com/gogaruda/apperror"
+
+// Contoh: validasi input gagal
+err := apperror.New(apperror.CodeValidationError, "Nama wajib diisi", nil)
+```
+
+### Membuat Error Custom (kode dan status bebas)
+
+```go
+// Error khusus bisnis: user banned, gunakan HTTP 403
+err := apperror.New("USER_BANNED", "Akun Anda diblokir", nil, 403)
+```
+
+### Tangani Error secara otomatis (cukup satu baris)
+
+```go
+import (
+    "github.com/gin-gonic/gin"
+    "github.com/gogaruda/apperror"
 )
-```
 
-### 2. Tangani di handler controller
+func SomeHandler(c *gin.Context) {
+    err := someBusinessLogic()
+    if err != nil {
+        apperror.HandleHTTPError(c, err)
+        return
+    }
 
-```go
-data, err := s.GetByID(id)
-if err != nil {
-    apperror.HandleHTTPError(c, err)
-    return
+    c.JSON(200, gin.H{"status": "ok"})
 }
 ```
 
-### 3. (Opsional) Cek tipe error dengan `Is`
+> Fungsi `HandleHTTPError()` akan otomatis membaca `GIN_MODE=debug` dan mengatur status/message sesuai error.
+
+### Cek Jenis Error
 
 ```go
-if apperror.Is(err, apperror.CodeUserNotFound) {
-    // bisa return 404, atau log khusus
+if apperror.Is(err, apperror.CodeUnauthorized) {
+    // lakukan redirect login atau token refresh
 }
 ```
 
----
-
-## 🐞 Debug Mode
-
-Untuk menampilkan pesan internal (`debug`) di response JSON saat development, aktifkan env var:
-
-```bash
-APP_DEBUG=true
-```
-
----
-
-## 🔐 Best Practice
-
-* Jangan tampilkan `err.Error()` langsung ke user.
-* Gunakan `apperror.New` untuk membungkus semua error.
-* Gunakan `apperror.Is` saat ingin handle khusus berdasarkan kode error.
-
----
-
-## 📤 Contoh Response (Production)
+### Output JSON Standar
 
 ```json
 {
-  "code": 404,
+  "code": 400,
   "status": "error",
-  "message": "User tidak ditemukan"
+  "message": "Input tidak valid",
+  "debug": "Nama wajib diisi" // jika GIN_MODE=debug
 }
 ```
 
-## 🧪 Contoh Response (Debug Mode)
+---
 
-```json
-{
-  "code": 500,
-  "status": "error",
-  "message": "Kesalahan database",
-  "debug": "gagal query role_id 123"
-}
-```
+## Catatan Penting
+
+* Jika kode error tidak ditemukan di mapping bawaan (`defaultErrorMap`):
+
+    * Akan menggunakan `initErr.HTTPStatus` jika tersedia
+    * Jika tidak, default ke `500`
+    * Pesan tetap berasal dari `initErr.Message`
+
+---
+
+## Direkomendasikan Untuk
+
+* Gin REST API
+* Middleware error handler global
+* Penanganan validasi, otorisasi, dan DB error

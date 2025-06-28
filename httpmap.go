@@ -1,12 +1,6 @@
 package apperror
 
-import (
-	"errors"
-	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
-	"os"
-)
+import "net/http"
 
 type HTTPErrorMap struct {
 	Code        string
@@ -15,7 +9,6 @@ type HTTPErrorMap struct {
 }
 
 var defaultErrorMap = []HTTPErrorMap{
-	// General
 	{CodeInternalError, http.StatusInternalServerError, "Terjadi kesalahan internal"},
 	{CodeInvalidInput, http.StatusBadRequest, "Input tidak valid"},
 	{CodeBadRequest, http.StatusBadRequest, "Permintaan tidak sesuai"},
@@ -32,8 +25,6 @@ var defaultErrorMap = []HTTPErrorMap{
 	{CodeMarshalError, http.StatusInternalServerError, "Gagal konversi data"},
 	{CodeUnmarshalError, http.StatusBadRequest, "Gagal membaca data"},
 	{CodePrepareError, http.StatusInternalServerError, "Gagal mempersiapkan data"},
-
-	// Resource
 	{CodeUserNotFound, http.StatusNotFound, "User tidak ditemukan"},
 	{CodeUserConflict, http.StatusConflict, "User sudah terdaftar"},
 	{CodeUsernameConflict, http.StatusConflict, "Username sudah terdaftar"},
@@ -46,55 +37,10 @@ var defaultErrorMap = []HTTPErrorMap{
 	{CodeTokenExpired, http.StatusUnauthorized, "Token telah kedaluwarsa"},
 	{CodePermissionDenied, http.StatusForbidden, "Tidak memiliki izin"},
 	{CodeInvalidCredential, http.StatusUnauthorized, "Kredensial tidak valid"},
-
-	// Database
 	{CodeDBNoRows, http.StatusNotFound, "Data tidak tersedia"},
 	{CodeDBConstraint, http.StatusConflict, "Gagal menyimpan data: constraint"},
 	{CodeDBTxFailed, http.StatusInternalServerError, "Transaksi database gagal"},
 	{CodeDBConnFailed, http.StatusServiceUnavailable, "Koneksi database gagal"},
 	{CodeDBError, http.StatusInternalServerError, "Kesalahan database"},
 	{CodeDBPrepareError, http.StatusInternalServerError, "Gagal prepare query database"},
-}
-
-var debugMode = os.Getenv("APP_DEBUG") == "true"
-
-func HandleHTTPError(c *gin.Context, err error) {
-	var initErr *InitError
-	if errors.As(err, &initErr) {
-		// Logging lengkap
-		log.Printf("[ERROR] %s | MESSAGE: %s | DETAIL: %+v\n", initErr.Code, initErr.Message, initErr.Err)
-
-		// Temukan mapping HTTP response
-		for _, mapping := range defaultErrorMap {
-			if mapping.Code == initErr.Code {
-				resp := gin.H{
-					"code":    mapping.Status,
-					"status":  "error",
-					"message": mapping.UserMessage,
-				}
-
-				if debugMode {
-					resp["debug"] = initErr.Message
-				}
-
-				c.JSON(mapping.Status, resp)
-				return
-			}
-		}
-
-		log.Printf("[UNMAPPED ERROR CODE] %s | MESSAGE: %s", initErr.Code, initErr.Message)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"status":  "error",
-			"message": "Terjadi kesalahan server",
-			"debug":   initErr.Message,
-		})
-	}
-
-	// Unknown error (bukan initError)
-	log.Printf("[UNHANDLED ERROR]: %+v", err)
-	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-		"status":  "error",
-		"message": "Terjadi kesalahan server",
-		"debug":   err.Error(),
-	})
 }

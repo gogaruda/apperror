@@ -1,7 +1,7 @@
 package apperror
 
-// General codes
 const (
+	// General codes
 	CodeInternalError   = "INTERNAL_ERROR"
 	CodeInvalidInput    = "INVALID_INPUT"
 	CodeUnauthorized    = "UNAUTHORIZED"
@@ -18,10 +18,8 @@ const (
 	CodePrepareError    = "PREPARE_ERROR"
 	CodeMarshalError    = "MARSHAL_ERROR"
 	CodeUnmarshalError  = "UNMARSHAL_ERROR"
-)
 
-// Resource-specific codes
-const (
+	// Resource-specific
 	CodeUserNotFound      = "USER_NOT_FOUND"
 	CodeUserConflict      = "USER_CONFLICT"
 	CodeUsernameConflict  = "USERNAME_CONFLICT"
@@ -34,10 +32,8 @@ const (
 	CodeTokenExpired      = "TOKEN_EXPIRED"
 	CodePermissionDenied  = "PERMISSION_DENIED"
 	CodeInvalidCredential = "INVALID_CREDENTIAL"
-)
 
-// DB-related
-const (
+	// DB-related
 	CodeDBError        = "DB_ERROR"
 	CodeDBNoRows       = "DB_NO_ROWS"
 	CodeDBConnFailed   = "DB_CONN_FAILED"
