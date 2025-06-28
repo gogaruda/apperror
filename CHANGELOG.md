@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.2.1] - (2025-06-28)
+### Perbaikan
+- Pindahkan debug ke log(tidak di response JSON)
+
 ## [v1.2.0] - (2025-06-28)
 ### Perbaikan
 - Tambahkan custom error

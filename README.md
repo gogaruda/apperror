@@ -1,41 +1,39 @@
 # apperror
 
-## Instalasi
+## 🚀 Instalasi
 
 ```bash
-go get github.com/gogaruda/apperror@latest
+go get github.com/gogaruda/apperror@v1.2.1
 ```
 
 ---
 
 ## Penggunaan
 
-### Membuat Error Standar (dengan kode bawaan)
+### Membuat Error Standar
 
 ```go
 import "github.com/gogaruda/apperror"
 
-// Contoh: validasi input gagal
 err := apperror.New(apperror.CodeValidationError, "Nama wajib diisi", nil)
 ```
 
-### Membuat Error Custom (kode dan status bebas)
+### ✅ Membuat Error Custom
 
 ```go
-// Error khusus bisnis: user banned, gunakan HTTP 403
-err := apperror.New("USER_BANNED", "Akun Anda diblokir", nil, 403)
+err := apperror.NewWithStatus("USER_BANNED", "Akun Anda diblokir", nil, 403)
 ```
 
-### Tangani Error secara otomatis (cukup satu baris)
+### ✅ Tangani Error Otomatis (di handler Gin)
 
 ```go
 import (
-    "github.com/gin-gonic/gin"
-    "github.com/gogaruda/apperror"
+  "github.com/gin-gonic/gin"
+  "github.com/gogaruda/apperror"
 )
 
 func SomeHandler(c *gin.Context) {
-    err := someBusinessLogic()
+    err := doSomething()
     if err != nil {
         apperror.HandleHTTPError(c, err)
         return
@@ -45,41 +43,50 @@ func SomeHandler(c *gin.Context) {
 }
 ```
 
-> Fungsi `HandleHTTPError()` akan otomatis membaca `GIN_MODE=debug` dan mengatur status/message sesuai error.
-
-### Cek Jenis Error
+### ✅ Cek Kode Error (opsional)
 
 ```go
 if apperror.Is(err, apperror.CodeUnauthorized) {
-    // lakukan redirect login atau token refresh
+    // arahkan ke login
 }
 ```
 
-### Output JSON Standar
+---
+
+## 🧠 Apa yang Dilakukan HandleHTTPError
+
+* Mencari mapping dari `Code -> HTTP status + UserMessage`
+* Jika ditemukan: kirim response dengan message aman
+* Jika tidak ditemukan:
+
+  * Gunakan HTTP status custom dari error (jika ada)
+  * Jika tidak ada: fallback 500
+* Pesan internal (`Message`) hanya dicetak ke log jika `GIN_MODE=debug`
+* Client hanya menerima `UserMessage` yang aman
+
+### Contoh Log (saat debug aktif):
+
+```
+[ERROR] CODE=VALIDATION_ERROR | MESSAGE=Nama wajib diisi | DETAIL=input kosong
+```
+
+### Contoh Response:
 
 ```json
 {
   "code": 400,
   "status": "error",
-  "message": "Input tidak valid",
-  "debug": "Nama wajib diisi" // jika GIN_MODE=debug
+  "message": "Input tidak valid"
 }
 ```
 
 ---
 
-## Catatan Penting
+## 📌 Rekomendasi
 
-* Jika kode error tidak ditemukan di mapping bawaan (`defaultErrorMap`):
+Gunakan `apperror` untuk:
 
-    * Akan menggunakan `initErr.HTTPStatus` jika tersedia
-    * Jika tidak, default ke `500`
-    * Pesan tetap berasal dari `initErr.Message`
-
----
-
-## Direkomendasikan Untuk
-
-* Gin REST API
-* Middleware error handler global
-* Penanganan validasi, otorisasi, dan DB error
+* Validasi form/input
+* Kesalahan otorisasi/autentikasi
+* Error database (tx fail, no rows, dll)
+* Penanganan error bisnis khusus
