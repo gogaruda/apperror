@@ -3,7 +3,7 @@
 ## 🚀 Instalasi
 
 ```bash
-go get github.com/gogaruda/apperror@v1.2.1
+go get github.com/gogaruda/apperror@v1.2.2
 ```
 
 ---

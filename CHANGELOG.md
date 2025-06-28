@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.2.2] - (2025-06-28)
+### Perbaikan
+- GIN_MODE = debug
+
 ## [v1.2.1] - (2025-06-28)
 ### Perbaikan
 - Pindahkan debug ke log(tidak di response JSON)

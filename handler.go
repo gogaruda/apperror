@@ -9,7 +9,7 @@ import (
 )
 
 func HandleHTTPError(c *gin.Context, err error) {
-	debugMode := os.Getenv("APP_DEBUG") == "true"
+	debugMode := os.Getenv("GIN_MODE") == "debug"
 
 	var initErr *InitError
 	if errors.As(err, &initErr) {
