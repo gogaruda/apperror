@@ -30,6 +30,11 @@ func HandleHTTPError(c *gin.Context, err error) {
 			}
 		}
 
+		responseStatus := initErr.ResponseStatus
+		if responseStatus == "" {
+			responseStatus = "error"
+		}
+
 		// Tidak ada mapping → gunakan custom status atau fallback 500
 		status := initErr.HTTPStatus
 		if status == 0 {
@@ -37,7 +42,7 @@ func HandleHTTPError(c *gin.Context, err error) {
 		}
 		c.JSON(status, gin.H{
 			"code":    status,
-			"status":  "error",
+			"status":  responseStatus,
 			"message": initErr.Message,
 		})
 		return

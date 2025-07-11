@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.3.0] - (2025-07-11)
+### Penambahan
+- Tambahkan field `ResponseStatus` ke `InitError`
+- Tambahkan method `WithResponseStatus()` untuk chaining
+- `HandleHTTPError` kini mendukung `InitError.ResponseStatus` agar JSON status bisa dinamis
+- Tambahkan `NewWithStatus()` untuk membuat error dengan HTTP status dan status JSON sekaligus
+
 ## [v1.2.2] - (2025-06-28)
 ### Perbaikan
 - GIN_MODE = debug

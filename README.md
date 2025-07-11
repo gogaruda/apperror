@@ -1,92 +1,121 @@
 # apperror
 
+Sistem standar untuk penanganan error di aplikasi Go (Gin-based), dengan dukungan:
+
+✅ Kode error yang konsisten  
+✅ Mapping otomatis ke HTTP status + pesan aman  
+✅ Logging internal saat debug  
+✅ Respons JSON yang bisa dikustom `status`-nya (tidak hanya "error")
+
+---
+
 ## 🚀 Instalasi
 
 ```bash
-go get github.com/gogaruda/apperror@v1.2.2
-```
+go get github.com/gogaruda/apperror@v1.3.0
+````
 
 ---
 
-## Penggunaan
+## 📦 API
 
-### Membuat Error Standar
+### ✅ Membuat Error Standar
 
 ```go
-import "github.com/gogaruda/apperror"
-
 err := apperror.New(apperror.CodeValidationError, "Nama wajib diisi", nil)
 ```
 
-### ✅ Membuat Error Custom
+### ✅ Membuat Error dengan HTTP Status
 
 ```go
-err := apperror.NewWithStatus("USER_BANNED", "Akun Anda diblokir", nil, 403)
+err := apperror.New(apperror.CodeValidationError, "Nama wajib diisi", nil, http.StatusBadRequest)
 ```
 
-### ✅ Tangani Error Otomatis (di handler Gin)
+### ✅ Membuat Error dengan Status JSON Dinamis
 
 ```go
-import (
-  "github.com/gin-gonic/gin"
-  "github.com/gogaruda/apperror"
-)
+err := apperror.NewWithStatus("TOKEN_EXPIRED", "Token kadaluarsa", nil, 401, "expired")
+```
 
+### ✅ Atau chaining:
+
+```go
+err := apperror.New("TOKEN_EXPIRED", "Token kadaluarsa", nil, 401).
+	WithResponseStatus("expired")
+```
+
+---
+
+## ✅ Tangani Error Otomatis (Gin)
+
+```go
 func SomeHandler(c *gin.Context) {
-    err := doSomething()
-    if err != nil {
-        apperror.HandleHTTPError(c, err)
-        return
-    }
+	err := doSomething()
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
 
-    c.JSON(200, gin.H{"status": "ok"})
+	c.JSON(200, gin.H{"status": "ok"})
 }
 ```
 
-### ✅ Cek Kode Error (opsional)
+---
+
+## ✅ Cek Jenis Error
 
 ```go
 if apperror.Is(err, apperror.CodeUnauthorized) {
-    // arahkan ke login
+	// Redirect ke login
 }
 ```
 
 ---
 
-## 🧠 Apa yang Dilakukan HandleHTTPError
-
-* Mencari mapping dari `Code -> HTTP status + UserMessage`
-* Jika ditemukan: kirim response dengan message aman
-* Jika tidak ditemukan:
-
-  * Gunakan HTTP status custom dari error (jika ada)
-  * Jika tidak ada: fallback 500
-* Pesan internal (`Message`) hanya dicetak ke log jika `GIN_MODE=debug`
-* Client hanya menerima `UserMessage` yang aman
-
-### Contoh Log (saat debug aktif):
-
-```
-[ERROR] CODE=VALIDATION_ERROR | MESSAGE=Nama wajib diisi | DETAIL=input kosong
-```
-
-### Contoh Response:
+## 🔁 Contoh Output JSON
 
 ```json
 {
-  "code": 400,
+  "code": 401,
+  "status": "expired",
+  "message": "Token kadaluarsa"
+}
+```
+
+Atau default (tanpa `ResponseStatus`):
+
+```json
+{
+  "code": 500,
   "status": "error",
-  "message": "Input tidak valid"
+  "message": "Terjadi kesalahan internal"
 }
 ```
 
 ---
 
-## 📌 Rekomendasi
+## 🔍 Cara Kerja `HandleHTTPError`
+
+1. Cek apakah error adalah `InitError`
+2. Cek apakah ada mapping `Code → HTTP status + User message`
+3. Jika tidak ditemukan:
+
+  * Pakai HTTP status dari error (jika ada)
+  * Default ke 500
+4. Status JSON:
+
+  * Jika `ResponseStatus` di-set → dipakai
+  * Jika tidak → fallback ke `"error"`
+5. Pesan internal hanya ditampilkan di log jika `GIN_MODE=debug`
+
+---
+
+## ✅ Rekomendasi Pemakaian
 
 Gunakan `apperror` untuk:
 
-* Validasi form/input
-* Kesalahan otorisasi/autentikasi
-* Error database (tx fail, no rows, dll)
-* Penanganan error bisnis khusus
+* Validasi input/form
+* Kesalahan otentikasi dan otorisasi
+* Konflik resource
+* Error dari database atau layanan eksternal
+* Penanganan logika bisnis yang bisa diharapkan

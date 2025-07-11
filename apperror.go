@@ -6,10 +6,11 @@ import (
 )
 
 type InitError struct {
-	Code       string
-	Message    string
-	Err        error
-	HTTPStatus int // Optional: custom HTTP status code
+	Code           string
+	Message        string
+	Err            error
+	HTTPStatus     int    // Optional: custom HTTP status code
+	ResponseStatus string // Optional: custom JSON "status" (e.g. "fail", "unauthorized")
 }
 
 func (e *InitError) Error() string {
@@ -35,4 +36,19 @@ func New(code, message string, err error, httpStatus ...int) *InitError {
 func Is(err error, code string) bool {
 	var e *InitError
 	return errors.As(err, &e) && e.Code == code
+}
+
+func (e *InitError) WithResponseStatus(status string) *InitError {
+	e.ResponseStatus = status
+	return e
+}
+
+func NewWithStatus(code, message string, err error, httpStatus int, responseStatus string) *InitError {
+	return &InitError{
+		Code:           code,
+		Message:        message,
+		Err:            err,
+		HTTPStatus:     httpStatus,
+		ResponseStatus: responseStatus,
+	}
 }
